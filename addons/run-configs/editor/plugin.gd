@@ -77,6 +77,8 @@ func _play_scene():
 		RunConfig.PlayMode.CustomScene:
 			var scene := config.custom_scene
 			EditorInterface.play_custom_scene(scene)
+		RunConfig.PlayMode.Composite:
+			pass
 
 
 

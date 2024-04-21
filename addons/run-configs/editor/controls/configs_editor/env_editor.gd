@@ -12,7 +12,6 @@ func _ready() -> void:
 	add_env_button.pressed.connect(_add_column)
 	grid_container.resized.connect(_on_resize)
 
-
 func render(envs: Dictionary):
 	_delete_all_columns()
 	

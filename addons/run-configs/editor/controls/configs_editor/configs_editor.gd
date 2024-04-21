@@ -4,6 +4,7 @@ extends ConfirmationDialog
 const ConfigsManager := preload("res://addons/run-configs/run-config-manager.gd")
 const RunConfig := preload("res://addons/run-configs/models/run_config.gd")
 const EnvEditor := preload("res://addons/run-configs/editor/controls/configs_editor/env_editor.gd")
+const CompositeEditor := preload("res://addons/run-configs/editor/controls/configs_editor/composite_editor.gd")
 
 # Config List
 @onready var add_config: Button = %AddConfig
@@ -15,6 +16,7 @@ const EnvEditor := preload("res://addons/run-configs/editor/controls/configs_edi
 @onready var play_mode_edit: OptionButton = %PlayModeEdit
 @onready var custom_scene_edit: Button = %CustomSceneEdit
 @onready var env_edit: EnvEditor = %EnvEdit
+@onready var composite_edit: CompositeEditor = %CompositeEdit
 
 var file_dialog := EditorFileDialog.new()
 var configs: Array[RunConfig] = []
@@ -43,6 +45,7 @@ func _ready():
 	custom_scene_edit.pressed.connect(func(): file_dialog.popup_centered_ratio())
 	file_dialog.file_selected.connect(func(file): _update_value(&"custom_scene", file))
 	env_edit.changed.connect(func(envs): _update_value(&"environment_variables", envs))
+	composite_edit.changed.connect(func(configs): _update_value(&"composite_configs", configs))
 
 	confirmed.connect(func(): ConfigsManager.set_configs(configs))
 
@@ -80,6 +83,15 @@ func _on_add_config():
 
 func _on_remove_config():
 	if configs.size() <= 0: return
+
+	# Check if the config to be removed is used by any composite configs
+	# If so, remove it
+	for c in configs:
+		if c.play_mode == RunConfig.PlayMode.Composite:
+			var index = c.composite_configs.find(configs[selected])
+			if index > -1:
+				c.composite_configs.remove_at(index)
+				
 	configs.remove_at(selected)
 	selected = clamp(selected, 0, configs.size() - 1)
 	_render()
@@ -124,6 +136,10 @@ func _render_form(ind: int):
 	custom_scene_edit.visible = config.play_mode == RunConfig.PlayMode.CustomScene
 	# Env
 	env_edit.render(config.environment_variables)
+	# Composite config
+	composite_edit.visible = config.play_mode == RunConfig.PlayMode.Composite
+	%CompositeLabel.visible = config.play_mode == RunConfig.PlayMode.Composite
+	composite_edit.render(config.composite_configs, configs)
 
 
 func _update_value(property: StringName, value):
@@ -131,6 +147,8 @@ func _update_value(property: StringName, value):
 		configs_list.set_item_text(selected, value)
 	elif property == &"play_mode":
 		custom_scene_edit.visible = value == int(RunConfig.PlayMode.CustomScene)
+		composite_edit.visible = value == RunConfig.PlayMode.Composite
+		%CompositeLabel.visible = value == RunConfig.PlayMode.Composite
 	elif property == &"custom_scene":
 		custom_scene_edit.text = value
 		
