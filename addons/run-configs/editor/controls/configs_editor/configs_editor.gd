@@ -45,7 +45,7 @@ func _ready():
 	custom_scene_edit.pressed.connect(func(): file_dialog.popup_centered_ratio())
 	file_dialog.file_selected.connect(func(file): _update_value(&"custom_scene", file))
 	env_edit.changed.connect(func(envs): _update_value(&"environment_variables", envs))
-	composite_edit.changed.connect(func(configs): _update_value(&"composite_configs", configs))
+	composite_edit.changed.connect(func(_configs): _update_value(&"composite_configs", _configs))
 
 	confirmed.connect(func(): ConfigsManager.set_configs(configs))
 
@@ -154,4 +154,3 @@ func _update_value(property: StringName, value):
 		
 	var config := configs[selected]
 	config.set(property, value)
-

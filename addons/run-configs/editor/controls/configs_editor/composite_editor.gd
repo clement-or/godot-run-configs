@@ -16,7 +16,7 @@ func _ready():
 	add_item_btn.pressed.connect(_add_item)
 	del_item_btn.pressed.connect(_del_item)
 
-func render(composite_configs: Array[StringName], all_configs: Array[RunConfig]):
+func render(composite_configs: Array, all_configs: Array[RunConfig]):
 	del_item_btn.disabled = composite_configs.size() <= 0
 	_all_configs = all_configs
 

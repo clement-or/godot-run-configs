@@ -25,7 +25,7 @@ enum PlayMode { MainScene, CurrentScene, CustomScene, Composite }
 @export var environment_variables: Dictionary
 
 ## List of configs to run if this config is composite
-@export var composite_configs: Array[StringName] = []
+@export var composite_configs: Array = []
 
 
 # Serialization
