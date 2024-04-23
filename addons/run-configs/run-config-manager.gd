@@ -8,6 +8,8 @@ const _CURRENT_CONFIG_PATH := CONFIGS_BASE_PATH + _CONFIGS_DATA_PATH + "/current
 
 const RunConfig := preload("res://addons/run-configs/models/run_config.gd")
 
+var pids = []
+
 func _init():
 	if not OS.has_feature(&"editor"):
 		return
@@ -32,6 +34,13 @@ func _ready():
 	if config.custom_scene != "" and get_tree().current_scene.scene_file_path != config.custom_scene:
 		print_rich("[color=gray][Run Config][/color] [color=yellow][Warn][/color] The [b]%s[/b] config has a custom scene set, but the game is ran from the regular Run button. Please use the config Run button to run the custom scene." % config.name)
 
+func _exit_tree():
+	_kill_pids()
+
+func _kill_pids():
+	for pid in pids:
+		OS.kill(pid)
+	pids = []
 
 ## API
 static func get_current_config() -> RunConfig:
@@ -43,6 +52,12 @@ static func get_current_config() -> RunConfig:
 
 	return configs[ind]
 
+static func get_config_from_name(name: StringName) -> RunConfig:
+	var configs := load_configs()
+	for c in configs:
+		if c.name == name:
+			return c
+	return null
 
 static func load_configs() -> Array[RunConfig]:
 	var settings = ProjectSettings.get_setting(_CONFIGS_PATH)
