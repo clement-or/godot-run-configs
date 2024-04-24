@@ -1,6 +1,8 @@
 @tool
 extends EditorPlugin
 
+signal editor_game_stopped
+signal editor_game_started
 
 const ConfigManager := preload("../run-config-manager.gd")
 const RunConfig := preload("../models/run_config.gd")
@@ -26,6 +28,7 @@ const AUTOLOAD_PATH = &"RunConfigManager"
 var confg_manager_autoload := ConfigManager.new()
 
 var _pids = []
+var _game_is_playing = false
 
 func _enter_tree():
 	var base_control := get_editor_interface().get_base_control()
@@ -48,6 +51,8 @@ func _enter_tree():
 	if not editor_settings.has_setting(_RUN_SHORTCUT_PATH):
 		editor_settings.set_setting(_RUN_SHORTCUT_PATH, RunShortcut.duplicate())
 	editor_settings.set_initial_value(_RUN_SHORTCUT_PATH, RunShortcut.duplicate(), false)
+	
+	editor_game_stopped.connect(_on_editor_game_stopped)
 
 func _exit_tree():
 	_kill_pids()
@@ -63,7 +68,20 @@ func _disable_plugin() -> void:
 	remove_inspector_plugin(inspector_plugin)
 	
 	remove_autoload_singleton(AUTOLOAD_PATH)
-	
+
+func _process(_delta):
+	var playing = EditorInterface.is_playing_scene()
+	if playing != _game_is_playing:
+		if playing:
+			editor_game_started.emit()
+		else:
+			editor_game_stopped.emit()
+
+		_game_is_playing = playing
+		
+	var new_game_is_running = EditorInterface.is_playing_scene()
+
+# TODO: Remember window positions
 func _on_play_pressed():
 	var config := ConfigManager.get_current_config()
 
@@ -74,7 +92,6 @@ func _on_play_pressed():
 		_run_composite_config(config)
 	else:
 		_play_in_editor(config)
-
 
 func _play_in_editor(config: RunConfig):
 	match config.play_mode:
@@ -95,15 +112,14 @@ func _run_composite_config(config: RunConfig):
 	_kill_pids()
 
 	# Run all configs in separate processes except the first one
-	for i in range(1, config.composite_configs.size()):
+	for i in range(0, config.composite_configs.size()):
 		var c = ConfigManager.get_config_from_name(config.composite_configs[i])
-		if c:
-			_play_as_separate_process(c)
+		if not c: continue
 
-	# Run the first config of the list in editor for easy debugging
-	var c = ConfigManager.get_config_from_name(config.composite_configs[0])
-	if c:
-		_play_in_editor(c)
+		if i > 0:
+			_play_as_separate_process(c)
+		else:
+			_play_in_editor(c)
 
 func _play_as_separate_process(config: RunConfig):
 	var args = []
@@ -136,3 +152,6 @@ func _kill_pids():
 	for pid in _pids:
 		OS.kill(pid)
 	_pids = []
+
+func _on_editor_game_stopped():
+	_kill_pids()
