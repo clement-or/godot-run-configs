@@ -12,12 +12,14 @@ config_version=5
 
 config/name="Run Configs Plugin"
 config/tags=PackedStringArray("addon")
+run/main_scene="res://scene_editor.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 RunConfigManager="*res://addons/run-configs/run-config-manager.gd"
+Demo="*res://Demo.gd"
 
 [dotnet]
 
@@ -29,5 +31,5 @@ enabled=PackedStringArray("res://addons/run-configs/plugin.cfg")
 
 [run_configs]
 
-data/configs=["{\"custom_scene\":\"\",\"environment_variables\":{},\"name\":\"Default\",\"play_mode\":0}", "{\"custom_scene\":\"\",\"environment_variables\":{},\"name\":\"Debug\",\"play_mode\":0}", "{\"custom_scene\":\"\",\"environment_variables\":{},\"name\":\"Config (3)\",\"play_mode\":0}"]
-data/current=0
+data/configs=["{\"composite_configs\":[],\"custom_scene\":\"\",\"environment_variables\":{\"MY_VAR\":\"Main Scene\"},\"name\":\"Main Scene\",\"play_mode\":0}", "{\"composite_configs\":[],\"custom_scene\":\"res://scene_a.tscn\",\"environment_variables\":{\"MY_VAR\":\"A Scenes\"},\"name\":\"A Scene\",\"play_mode\":2}", "{\"composite_configs\":[],\"custom_scene\":\"res://scene_b.tscn\",\"environment_variables\":{\"MY_VAR\":\"B Scene\"},\"name\":\"B Scene\",\"play_mode\":2}", "{\"composite_configs\":[\"Main Scene\",\"A Scene\",\"B Scene\"],\"custom_scene\":\"\",\"environment_variables\":{\"MY_VAR\":\"Composite\"},\"name\":\"Composite\",\"play_mode\":3}"]
+data/current=3

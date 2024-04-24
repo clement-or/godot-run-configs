@@ -24,6 +24,8 @@ func _init():
 	for key in env.keys():
 		OS.set_environment(key, env[key])
 
+	print(get_current_config_index())
+
 	print_rich("[color=gray][Run Config][/color] [color=white]Applied environment variables from the [b]%s[/b] config." % config.name)
 
 func _ready():
